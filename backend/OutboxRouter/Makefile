@@ -25,6 +25,9 @@ run-watch: # run
 run: # Run app & support infra in a docker compose
 	@docker-compose up -d
 
+run-local2: # Run app local without any support infra
+	$(STACK) exec $(APP_NAME) -- --port 18081 +RTS -T -N2 -RTS
+
 run-local: # Run app local without any support infra
 	$(STACK) exec $(APP_NAME) -- --port 18080 +RTS -T -N2 -RTS
 

@@ -96,16 +96,21 @@ readOutboxMessages pool index limit =
       IO [OutboxMessage]
 
 fetchTokenEntry :: Connection -> Int64 -> String -> IO (Maybe TokenEntry)
-fetchTokenEntry conn segment processor_name = do
-  te <-
-    query
-      conn
-      "SELECT processor_name,segment,token_type,token,owner,timestamp FROM token_entry WHERE segment=? AND processor_name=? FOR UPDATE NOWAIT"
-      (segment, processor_name) ::
-      IO [TokenEntry]
-  if length te == 1
-    then return $ Just $ head te
-    else return Nothing
+fetchTokenEntry conn segment processor_name = catch r handle
+  where
+    r = do
+      te <-
+        query
+          conn
+          "SELECT processor_name,segment,token_type,token,owner,timestamp FROM token_entry WHERE segment=? AND processor_name=? FOR UPDATE NOWAIT"
+          (segment, processor_name) ::
+          IO [TokenEntry]
+      if length te == 1
+        then return $ Just $ head te
+        else return Nothing
+    handle e = do
+      putStrLn $ show (e :: SomeException)
+      return Nothing
 
 updateTokenData :: Connection -> TokenData -> Int64 -> String -> IO ()
 updateTokenData conn tokenData segment processor_name = do
@@ -122,7 +127,8 @@ withTokenEntryLock pool seg pn action =
   withResource pool $ \conn -> do
     withTransaction conn $ do
       te <- fetchTokenEntry conn seg pn
-      when (length te == 1 && isJust te) $ action (fromJust te) conn
+      when (isJust te) $ action (fromJust te) conn
+      unless (isJust te) $ threadDelay 1000000
 
 transformMessages = return
 
@@ -132,11 +138,14 @@ processMessages :: DbConnection -> Int64 -> Int64 -> IO (Maybe OutboxMessage)
 processMessages pool index limit = do
   -- putStrLn $ "Reading outbox messages from index: " ++ show index ++ " with limit: " ++ show limit
   msgs <- readOutboxMessages pool index limit
-  tms <- transformMessages msgs
-  _ <- publishMessagesToTopic tms
-  if not (null tms)
-    then return $ Just $ last tms
-    else return Nothing
+  if null msgs
+    then return Nothing
+    else do
+      tms <- transformMessages msgs
+      _ <- publishMessagesToTopic tms
+      if not (null tms)
+        then return $ Just $ last tms
+        else return Nothing
 
 publisherLoop pool = forever $ do
   withTokenEntryLock pool seg pn $ \te tconn -> do
