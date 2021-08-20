@@ -28,6 +28,8 @@ library
       Db.Migration
       Db.Types
       Lib
+      Types
+      Worker
   other-modules:
       Paths_OutboxRouter
   hs-source-dirs:

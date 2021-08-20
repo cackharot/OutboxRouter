@@ -1,10 +1,18 @@
 module Db.Connection
+  (setupDb)
 where
 
-import RIO
-import Data.Pool
-import Database.PostgreSQL.Simple
-import Db.Types
+import           Data.Pool
+import           Database.PostgreSQL.Simple
+import           Db.Migration
+import           Db.Types
+import           RIO
+
+setupDb :: PgSettings -> IO DbConnection
+setupDb pgSettings = do
+  pool <- initConnectionPool pgSettings
+  initDB pgSettings
+  return pool
 
 initConnectionPool :: PgSettings -> IO DbConnection
 initConnectionPool pgSettings =
