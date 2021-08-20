@@ -38,6 +38,8 @@ dependencies:
 - postgresql-simple
 - hostname
 - async
+- hw-kafka-client
+- containers
 
 
 default-extensions:

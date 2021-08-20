@@ -27,6 +27,7 @@ library
       Db.Connection
       Db.Migration
       Db.Types
+      KafkaPublisher
       Lib
       Types
       Worker
@@ -45,11 +46,13 @@ library
     , binary
     , bytestring
     , chakra
+    , containers
     , data-has
     , dotenv
     , envy
     , hostname
     , http-types
+    , hw-kafka-client
     , optparse-simple
     , postgresql-simple
     , resource-pool
@@ -78,11 +81,13 @@ executable OutboxRouter-exe
     , binary
     , bytestring
     , chakra
+    , containers
     , data-has
     , dotenv
     , envy
     , hostname
     , http-types
+    , hw-kafka-client
     , optparse-simple
     , postgresql-simple
     , resource-pool
@@ -113,12 +118,14 @@ test-suite OutboxRouter-test
     , binary
     , bytestring
     , chakra
+    , containers
     , data-has
     , dotenv
     , envy
     , hostname
     , hspec
     , http-types
+    , hw-kafka-client
     , optparse-simple
     , postgresql-simple
     , resource-pool

@@ -12,6 +12,7 @@ import           Control.Monad
 import qualified Data.Text                  as T
 import           Db.Connection
 import           Db.Types
+import           KafkaPublisher
 import           Options.Applicative.Simple
 import qualified Paths_OutboxRouter
 import           RIO
@@ -50,6 +51,7 @@ main = do
       middlewares <- chakraMiddlewares infoDetail
       pool <- setupDb pgSettings
       pl <- async $ workerLoop pool
+      _ <- async $ runProducerExample
       runChakraAppWithMetrics
         middlewares
         EmptyContext

@@ -3,70 +3,77 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-snapshots:
-- original: lts-16.12
-  completed:
-    sha256: f914cfa23fef85bdf895e300a8234d9d0edc2dbec67f4bc9c53f85867c50eab6
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/16/12.yaml
-    size: 532377
 packages:
-- original:
-    hackage: chakra-0.1.0
-  completed:
-    pantry-tree:
-      sha256: 73b19df9ef57929ab1ab5a5221309f9b2b8da99b5c958eb68ec9c3b61db0e08d
-      size: 1050
+- completed:
     hackage: chakra-0.1.0@sha256:bb6194d477ccbbf21ec6a72fb2ccdae34fef39e9e50dbf9502a9e89c584d0ba2,4848
-- original:
-    git: https://github.com/cackharot/wai-cli.git
-    commit: 73359e0efbe7982eecbf843f8638ffdbede324f0
-  completed:
     pantry-tree:
-      sha256: 9bd1cc82260bb6fe775578906b65536ae75df17bee85003e151ec2e089a7987d
-      size: 550
+      size: 1050
+      sha256: 73b19df9ef57929ab1ab5a5221309f9b2b8da99b5c958eb68ec9c3b61db0e08d
+  original:
+    hackage: chakra-0.1.0
+- completed:
+    name: wai-cli
     version: 0.2.2
     git: https://github.com/cackharot/wai-cli.git
-    name: wai-cli
+    pantry-tree:
+      size: 550
+      sha256: 9bd1cc82260bb6fe775578906b65536ae75df17bee85003e151ec2e089a7987d
     commit: 73359e0efbe7982eecbf843f8638ffdbede324f0
-- original:
-    hackage: prometheus-metrics-ghc-1.0.1.1
-  completed:
-    pantry-tree:
-      sha256: 0732085a4148b269bbc15eeb7ab422e65ac287878a42a7388a7b6e140ec740e5
-      size: 293
+  original:
+    git: https://github.com/cackharot/wai-cli.git
+    commit: 73359e0efbe7982eecbf843f8638ffdbede324f0
+- completed:
     hackage: prometheus-metrics-ghc-1.0.1.1@sha256:d378a7186a967140fe0e09d325fe5e3bfd7b77a1123934b40f81fdfed2eacbdc,1233
-- original:
-    hackage: wai-middleware-prometheus-1.0.0
-  completed:
     pantry-tree:
-      sha256: 6d64803c639ed4c7204ea6fab0536b97d3ee16cdecb9b4a883cd8e56d3c61402
-      size: 307
+      size: 293
+      sha256: 0732085a4148b269bbc15eeb7ab422e65ac287878a42a7388a7b6e140ec740e5
+  original:
+    hackage: prometheus-metrics-ghc-1.0.1.1
+- completed:
     hackage: wai-middleware-prometheus-1.0.0@sha256:1625792914fb2139f005685be8ce519111451cfb854816e430fbf54af46238b4,1314
-- original:
-    hackage: servant-auth-0.4.0.0
-  completed:
     pantry-tree:
-      sha256: b08b3042bcec9884ea80098ef0f528be166c5ddcea9651c1fe70b3f584b015c7
-      size: 332
+      size: 307
+      sha256: 6d64803c639ed4c7204ea6fab0536b97d3ee16cdecb9b4a883cd8e56d3c61402
+  original:
+    hackage: wai-middleware-prometheus-1.0.0
+- completed:
     hackage: servant-auth-0.4.0.0@sha256:f913100ce607365e37570d08e8c72e48dce8789950f92f4fd9c689eac8af00c3,2185
-- original:
-    hackage: servant-auth-server-0.4.6.0
-  completed:
     pantry-tree:
-      sha256: 7fad68f290c5933e88bf6ed0da2b4cdcd6b9a43fdf71dea571c0dee0ace51da8
-      size: 1376
+      size: 332
+      sha256: b08b3042bcec9884ea80098ef0f528be166c5ddcea9651c1fe70b3f584b015c7
+  original:
+    hackage: servant-auth-0.4.0.0
+- completed:
     hackage: servant-auth-server-0.4.6.0@sha256:dc376c76780259cb8d4850179bb456c3fcd057a97c62e260214b7111b4755a45,5254
-- original:
-    hackage: servant-server-0.18.2
-  completed:
     pantry-tree:
-      sha256: f68f20871f9e36b0fe9a6496d33293a662054b2402c78ac5807c4ad407330cd2
-      size: 2614
+      size: 1376
+      sha256: 7fad68f290c5933e88bf6ed0da2b4cdcd6b9a43fdf71dea571c0dee0ace51da8
+  original:
+    hackage: servant-auth-server-0.4.6.0
+- completed:
     hackage: servant-server-0.18.2@sha256:8d70dc82700e84928be269328ed87551db865165ab0cf4f9ebc167c26e161876,5665
-- original:
-    hackage: servant-0.18.2
-  completed:
     pantry-tree:
-      sha256: 89203ad8f8f77e6a4ba5b0686804245243307f36e79841d727c2e4a412c2c3d8
-      size: 2662
+      size: 2614
+      sha256: f68f20871f9e36b0fe9a6496d33293a662054b2402c78ac5807c4ad407330cd2
+  original:
+    hackage: servant-server-0.18.2
+- completed:
     hackage: servant-0.18.2@sha256:709b9e0a4ceea893a98d9a6bf3835763427a6b8366c222599167ed84e41ae838,5484
+    pantry-tree:
+      size: 2662
+      sha256: 89203ad8f8f77e6a4ba5b0686804245243307f36e79841d727c2e4a412c2c3d8
+  original:
+    hackage: servant-0.18.2
+- completed:
+    hackage: hw-kafka-client-4.0.3@sha256:20e3614454d5afd2a6acfc0709b9bf00bd6ee9a9bc646c2e2e4ccec1d16831a1,4861
+    pantry-tree:
+      size: 2057
+      sha256: 709ea6818b3b3beb8eed6f79ea76b8dc13cce9ae165870c17986d5de2d695447
+  original:
+    hackage: hw-kafka-client-4.0.3@sha256:20e3614454d5afd2a6acfc0709b9bf00bd6ee9a9bc646c2e2e4ccec1d16831a1,4861
+snapshots:
+- completed:
+    size: 532377
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/16/12.yaml
+    sha256: f914cfa23fef85bdf895e300a8234d9d0edc2dbec67f4bc9c53f85867c50eab6
+  original: lts-16.12
