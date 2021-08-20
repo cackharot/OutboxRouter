@@ -16,6 +16,9 @@ import           Control.Concurrent                 (threadDelay)
 import           Control.Concurrent.Async
 import           Control.Monad
 import           Data.Aeson.TH
+import qualified Data.Binary                        as By
+import qualified Data.ByteString.Lazy               as LB
+import           Data.Maybe                         (fromJust)
 import           Data.Pool
 import qualified Data.Text                          as T
 import           Database.PostgreSQL.Simple
@@ -25,7 +28,8 @@ import           Db.Migration
 import           Db.Types
 import           Options.Applicative.Simple
 import qualified Paths_OutboxRouter
-import           Prelude                            (print)
+import           Prelude                            (head, last, print,
+                                                     putStrLn)
 import           RIO                                hiding (async, cancel,
                                                      threadDelay)
 import           Servant
@@ -52,19 +56,25 @@ $(deriveJSON defaultOptions ''OutboxMessage)
 instance FromRow OutboxMessage where
   fromRow = OutboxMessage <$> field <*> field <*> field <*> field <*> field
 
+data TokenData = TokenData
+  { _last_index     :: !Int,
+    _last_timestamp :: !String,
+    _gaps           :: ![Int]
+  }
+  deriving (Generic, Show, Eq, By.Binary)
+
 data TokenEntry = TokenEntry
   { _processor_name :: String,
     _segment        :: Int,
     _token_type     :: String,
+    _token          :: Maybe (Binary LB.ByteString),
     _owner          :: String,
     _te_timestamp   :: String
   }
   deriving (Eq, Show)
 
-$(deriveJSON defaultOptions ''TokenEntry)
-
 instance FromRow TokenEntry where
-  fromRow = TokenEntry <$> field <*> field <*> field <*> field <*> field
+  fromRow = TokenEntry <$> field <*> field <*> field <*> field <*> field <*> field
 
 hello :: Maybe Text -> BasicApp Text
 hello name = do
@@ -81,32 +91,66 @@ readOutboxMessages pool index limit =
   withResource pool $ \conn -> do
     query
       conn
-      "SELECT global_index,type,event_identifier,payload_type,timestamp FROM outbox WHERE global_index = ? LIMIT ?"
-      (index, limit) :: IO [OutboxMessage]
+      "SELECT global_index,type,event_identifier,payload_type,timestamp FROM outbox WHERE global_index > ? LIMIT ?"
+      (index, limit) ::
+      IO [OutboxMessage]
 
-fetchTokenEntries conn =
-  query_
+fetchTokenEntry :: Connection -> Int64 -> String -> IO (Maybe TokenEntry)
+fetchTokenEntry conn segment processor_name = do
+  te <-
+    query
+      conn
+      "SELECT processor_name,segment,token_type,token,owner,timestamp FROM token_entry WHERE segment=? AND processor_name=? FOR UPDATE NOWAIT"
+      (segment, processor_name) ::
+      IO [TokenEntry]
+  if length te == 1
+    then return $ Just $ head te
+    else return Nothing
+
+updateTokenData :: Connection -> TokenData -> Int64 -> String -> IO ()
+updateTokenData conn tokenData segment processor_name = do
+  -- putStrLn $ "Updating token entry token: " ++ (show tokenData)
+  execute
     conn
-    "SELECT processor_name,segment,token_type,owner,timestamp FROM token_entry WHERE segment =1 FOR UPDATE NOWAIT" ::
-    IO [TokenEntry]
+    "UPDATE token_entry SET token=? WHERE segment=? AND processor_name=?"
+    (d, segment, processor_name)
+  return ()
+  where
+    d = Binary $ By.encode tokenData
 
-withTokenEntryLock pool action =
+withTokenEntryLock pool seg pn action =
   withResource pool $ \conn -> do
     withTransaction conn $ do
-      te <- fetchTokenEntries conn
-      when (length te == 1) $ action te
-      return ()
+      te <- fetchTokenEntry conn seg pn
+      when (length te == 1 && isJust te) $ action (fromJust te) conn
 
 transformMessages = return
 
 publishMessagesToTopic = print
 
+processMessages :: DbConnection -> Int64 -> Int64 -> IO (Maybe OutboxMessage)
+processMessages pool index limit = do
+  -- putStrLn $ "Reading outbox messages from index: " ++ show index ++ " with limit: " ++ show limit
+  msgs <- readOutboxMessages pool index limit
+  tms <- transformMessages msgs
+  _ <- publishMessagesToTopic tms
+  if not (null tms)
+    then return $ Just $ last tms
+    else return Nothing
+
 publisherLoop pool = forever $ do
-  withTokenEntryLock pool $ \_ -> do
-    msgs <- readOutboxMessages pool (1 :: Int) (100 :: Int)
-    tms <- transformMessages msgs
-    _ <- publishMessagesToTopic tms
-    threadDelay 3000000
+  withTokenEntryLock pool seg pn $ \te tconn -> do
+    last_msg <- processMessages pool (current_index te) 100
+    when (isJust last_msg) $ updateTokenData tconn (d $ fromJust last_msg) seg pn
+    threadDelay 100000
+    return ()
+  where
+    seg = 1
+    pn = "process-1"
+    current_index t = fromMaybe 1 (getTokenData $ _token t)
+    getTokenData Nothing           = Nothing
+    getTokenData (Just (Binary a)) = Just $ By.decode a
+    d (OutboxMessage i _ _ _ t) = TokenData i t []
 
 main :: IO ()
 main = do

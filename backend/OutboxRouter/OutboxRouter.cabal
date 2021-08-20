@@ -40,6 +40,7 @@ library
       aeson
     , async
     , base >=4.11 && <10
+    , binary
     , bytestring
     , chakra
     , data-has
@@ -72,6 +73,7 @@ executable OutboxRouter-exe
     , aeson
     , async
     , base >=4.11 && <10
+    , binary
     , bytestring
     , chakra
     , data-has
@@ -106,6 +108,7 @@ test-suite OutboxRouter-test
     , aeson
     , async
     , base >=4.11 && <10
+    , binary
     , bytestring
     , chakra
     , data-has
