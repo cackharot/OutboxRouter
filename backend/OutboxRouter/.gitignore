@@ -1,0 +1,6 @@
+*~
+*.swp
+tarballs/
+.stack-work/
+.env.secrets
+bin/
