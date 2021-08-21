@@ -50,8 +50,10 @@ main = do
       logFunc <- buildLogger appEnv appVer
       middlewares <- chakraMiddlewares infoDetail
       pool <- setupDb pgSettings
-      pl <- async $ workerLoop pool
-      _ <- async $ runProducerExample
+      pl <- async $
+        withAppSettingsFromEnv $ \publisherSettings -> do
+          _ <- withPublisher publisherSettings $ workerLoop pool
+          return ()
       runChakraAppWithMetrics
         middlewares
         EmptyContext

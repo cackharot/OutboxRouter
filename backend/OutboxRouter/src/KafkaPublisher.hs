@@ -1,48 +1,77 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DeriveGeneric #-}
+
 module KafkaPublisher where
 
-import qualified Data.Map       as M
-import qualified Data.Text      as Text
+import qualified Data.Map             as M
+import qualified Data.Text            as T
+import           Kafka.Consumer.Types
 import           Kafka.Producer
-import           Prelude        (print)
+import           Prelude              (print)
 import           RIO
+import           System.Envy
 
--- Global producer properties
-producerProps :: ProducerProperties
-producerProps =
-  brokersList ["192.168.1.15:9092"]
---    <> sendTimeout (Timeout 1000)
-    <> extraProps (M.fromList [(Text.pack "broker.address.family", Text.pack "v4")])
-    <> logLevel KafkaLogDebug
+data PublisherSettings = PublisherSettings
+  { psBrokerList :: !String,
+    psClientId   :: !String,
+    psTimeout    :: !Int,
+    psTopicName  :: !String
+  }
+  deriving (Eq,Show,Generic)
 
--- Topic to send messages to
-targetTopic :: TopicName
-targetTopic = "todo"
+instance FromEnv PublisherSettings where
+  fromEnv = gFromEnvCustom Option { dropPrefixCount=2, customPrefix = "KAFKA" }
 
--- Run an example
-runProducerExample :: IO ()
-runProducerExample =
-  bracket mkProducer clProducer runHandler >>= print
+mkProducerProps :: PublisherSettings -> ProducerProperties
+mkProducerProps s =
+  brokersList [BrokerAddress $ T.pack $ psBrokerList s]
+    <> extraProps
+      ( M.fromList
+          [ ("broker.address.family", "v4"),
+            ("client.id", T.pack $ psClientId s)
+          ]
+      )
+    <> logLevel KafkaLogInfo
+
+withPublisher ::
+  MonadIO m =>
+  PublisherSettings ->
+  (KafkaProducer -> IO (Either KafkaError b)) ->
+  m (Either KafkaError b)
+withPublisher props handler = liftIO $ do
+  bracket mkProducer clProducer runHandler
   where
-    mkProducer = newProducer producerProps
+    mkProducer = newProducer $ mkProducerProps props
     clProducer (Left _)     = return ()
     clProducer (Right prod) = closeProducer prod
     runHandler (Left err)   = return $ Left err
-    runHandler (Right prod) = sendMessages prod
+    runHandler (Right prod) = handler prod
 
-sendMessages :: KafkaProducer -> IO (Either KafkaError ())
-sendMessages prod = do
-  err1 <- produceMessage prod (mkMessage Nothing (Just "test from producer"))
-  forM_ err1 print
-  err2 <- produceMessage prod (mkMessage (Just "key") (Just "test from producer (with key)"))
-  forM_ err2 print
-  return $ Right ()
+mkMessage' :: TopicName -> ByteString -> ByteString -> ProducerRecord
+mkMessage' t k v = mkMessage t (Just k) (Just v)
 
-mkMessage :: Maybe ByteString -> Maybe ByteString -> ProducerRecord
-mkMessage k v =
+mkMessage :: TopicName -> Maybe ByteString -> Maybe ByteString -> ProducerRecord
+mkMessage t k v =
   ProducerRecord
-    { prTopic = targetTopic,
+    { prTopic = t,
       prPartition = UnassignedPartition,
       prKey = k,
       prValue = v
     }
+
+sendMessageSync ::
+  MonadIO m =>
+  KafkaProducer ->
+  ProducerRecord ->
+  m (Either KafkaError Offset)
+sendMessageSync producer record = liftIO $ do
+  var <- newEmptyMVar
+  res <- produceMessage' producer record (putMVar var)
+  case res of
+    Left (ImmediateError err) -> pure (Left err)
+    Right () -> do
+      flushProducer producer
+      takeMVar var
+        >>= return . \x -> case x of
+          DeliverySuccess _ offset -> Right offset
+          DeliveryFailure _ err    -> Left err
+          NoMessageError err       -> Left err
