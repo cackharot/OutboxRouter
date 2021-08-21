@@ -187,3 +187,4 @@ $RECYCLE.BIN/
 .envrc
 !.envrc.example
 bin/
+.env.secrets
