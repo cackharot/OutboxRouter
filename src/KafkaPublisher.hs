@@ -6,7 +6,6 @@ import qualified Data.Map             as M
 import qualified Data.Text            as T
 import           Kafka.Consumer.Types
 import           Kafka.Producer
-import           Prelude              (print)
 import           RIO
 import           System.Envy
 

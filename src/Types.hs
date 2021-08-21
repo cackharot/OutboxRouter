@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveAnyClass  #-}
 {-# LANGUAGE DeriveGeneric   #-}
 {-# LANGUAGE TemplateHaskell #-}
+
 module Types
   ( OutboxMessage (..),
     TokenData (..),
@@ -8,10 +9,13 @@ module Types
   )
 where
 
-import           Data.Aeson.TH
+import           Data.Aeson
 import qualified Data.Binary                        as By
+import qualified Data.ByteString.Base64.Lazy        as B64
 import qualified Data.ByteString.Lazy               as LB
-import           Database.PostgreSQL.Simple         (Binary)
+import qualified Data.Text.Lazy                     as TL
+import qualified Data.Text.Lazy.Encoding            as TE
+import           Database.PostgreSQL.Simple         (Binary (..))
 import           Database.PostgreSQL.Simple.FromRow
 import           RIO
 
@@ -20,14 +24,33 @@ data OutboxMessage = OutboxMessage
     _type             :: String,
     _event_identifier :: String,
     _payload_type     :: String,
+    _payload          :: Maybe (Binary LB.ByteString),
+    _metadata         :: Maybe (Binary LB.ByteString),
     _timestamp        :: String
   }
   deriving (Eq, Show)
 
-$(deriveJSON defaultOptions ''OutboxMessage)
+instance ToJSON OutboxMessage where
+  toJSON (OutboxMessage i tpe ei pt p m tsp) =
+    object
+      [ "global_index" .= i,
+        "type" .= tpe,
+        "event_identifier" .= ei,
+        "payload_type" .= pt,
+        "payload" .= enc p,
+        "metadata" .= enc m,
+        "timestamp" .= tsp
+      ]
+    where
+      enc :: Maybe (Binary LB.ByteString) -> Maybe TL.Text
+      enc Nothing           = Nothing
+      enc (Just (Binary j)) = Just $ TE.decodeUtf8 $ B64.encode j
+
+--  toEncoding (OutboxMessage i tpe ei pt p m tsp) =
+--    pairs ("name" .= name <> "age" .= age)
 
 instance FromRow OutboxMessage where
-  fromRow = OutboxMessage <$> field <*> field <*> field <*> field <*> field
+  fromRow = OutboxMessage <$> field <*> field <*> field <*> field <*> field <*> field <*> field
 
 data TokenData = TokenData
   { _last_index     :: !Int,
