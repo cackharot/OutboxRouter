@@ -11,7 +11,7 @@ import           Database.PostgreSQL.Simple
 import           Db.Types
 import           Kafka.Producer.Types
 import           KafkaPublisher
-import           Prelude                    (head, last, putStr, putStrLn)
+import           Prelude                    (head, last, print, putStr)
 import           RIO                        hiding (async, cancel, threadDelay)
 import           Types
 
@@ -38,7 +38,7 @@ fetchTokenEntry conn segment processor_name = catch r handleErr
         else return Nothing
     handleErr e = do
       putStr "Error in fetching token entry record : "
-      putStrLn $ show (e :: SomeException)
+      print (e :: SomeException)
       return Nothing
 
 updateTokenData :: Connection -> TokenData -> Int64 -> String -> IO ()
@@ -67,7 +67,7 @@ withTokenEntryLock pool seg pn action =
       unless (isJust te) $ threadDelay 1000000
 
 transformMessages :: [OutboxMessage] -> IO [(Maybe ByteString, Maybe ByteString)]
-transformMessages msgs = mapM tx msgs
+transformMessages = mapM tx
   where
     tx m = pure $ (getKey m, getPayload m)
     getKey x = Just $ fromString $ _type x

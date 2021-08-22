@@ -1,5 +1,7 @@
 module Db.Connection
-  (setupDb)
+  ( setupDb,
+    initConnectionPool,
+  )
 where
 
 import           Data.Pool
@@ -20,10 +22,9 @@ initConnectionPool pgSettings =
       stripes = poolStripe pgSettings
       stripesMax = poolStripeMax pgSettings
       idle = poolIdleSeconds pgSettings
-  in
-  createPool
-    (connectPostgreSQL connStr)
-    close
-    stripes -- stripes
-    (realToFrac idle) -- unused connections are kept open for a minute
-    stripesMax -- max. 10 connections open per stripe
+   in createPool
+        (connectPostgreSQL connStr)
+        close
+        stripes -- stripes
+        (realToFrac idle) -- unused connections are kept open for a minute
+        stripesMax -- max. 10 connections open per stripe

@@ -41,6 +41,8 @@ dependencies:
 - hw-kafka-client
 - containers
 - base64-bytestring
+- uuid
+- time
 
 default-extensions:
   - OverloadedStrings
@@ -62,6 +64,18 @@ executables:
   OutboxRouter-exe:
     main:                Main.hs
     source-dirs:         app
+    dependencies:
+    - OutboxRouter
+    - optparse-simple
+
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -with-rtsopts=-T
+  TestDataGen-exe:
+    main:                Main.hs
+    source-dirs:         TestDataGen
     dependencies:
     - OutboxRouter
     - optparse-simple
