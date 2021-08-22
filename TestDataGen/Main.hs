@@ -14,13 +14,14 @@ import           Data.Time
 import           Data.UUID
 import           Data.UUID.V4
 import           Database.PostgreSQL.Simple
+import           DateTimeUtil
 import           Db.Connection
 import           Prelude                    (print, putStrLn)
 import           RIO
 
 work :: Pool Connection -> IO ()
 work pool = withResource pool $ \conn -> do
-  rows <- genRows [1 .. 1000]
+  rows <- genRows [1 .. 100000]
   cnt <- executeMany conn "INSERT INTO outbox (type,event_identifier,payload_type,payload,timestamp) VALUES (?,?,?,?,?)" rows
   print $ "Inserted " ++ show cnt ++ "records..."
   return ()
@@ -29,10 +30,10 @@ work pool = withResource pool $ \conn -> do
     gen i = do
       ei <- nextRandom
       now <- getCurrentTime
-      return (("TestType", toString ei, "JSON", mkPayload i, fmt now) :: (String, String, String, Binary ByteString, String))
-    fmt = formatTime defaultTimeLocale "%Y-%m-%dT%H:%M:%S.%QZ" -- "%Y-%m-%dT%H:%M:%SZ"
-    mkPayload i = Binary $ LB.toStrict $ encode (jp i)
-    jp i = (decode $ RIO.fromString ("{\"num\":" ++ show i ++ "}")) :: Maybe Value
+      let tsp = formatISO8601Nanos now in
+        return (("TestType", toString ei, "JSON", mkPayload i tsp, tsp) :: (String, String, String, Binary ByteString, String))
+    mkPayload i t = Binary $ LB.toStrict $ encode (jp i t)
+    jp i t = (decode $ RIO.fromString ("{\"num\":" ++ show i ++ ", \"timestamp\": \"" ++ t ++ "\" }")) :: Maybe Value
 
 main :: IO ()
 main = do

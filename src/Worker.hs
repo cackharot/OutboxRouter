@@ -102,9 +102,9 @@ processMessages pool publisher index limit = do
 workerLoop :: Pool Connection -> KafkaProducer -> IO b
 workerLoop pool publisher = forever $ do
   withTokenEntryLock pool seg pn $ \te tconn -> do
-    last_msg <- processMessages pool publisher (current_index te) 500
+    last_msg <- processMessages pool publisher (current_index te) 1000
     when (isJust last_msg) $ updateTokenData tconn (d $ fromJust last_msg) seg pn
-    threadDelay 100000
+    threadDelay 10000
     return ()
   where
     seg = 1

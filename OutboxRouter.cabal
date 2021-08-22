@@ -24,6 +24,7 @@ source-repository head
 
 library
   exposed-modules:
+      DateTimeUtil
       Db.Connection
       Db.Migration
       Db.Types
