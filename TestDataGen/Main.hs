@@ -8,7 +8,6 @@ import           Configuration.Dotenv       (Config (..), defaultConfig,
                                              loadFile)
 import           Control.Monad
 import           Data.Aeson
-import qualified Data.Binary                as By
 import qualified Data.ByteString.Lazy       as LB
 import           Data.Pool
 import           Data.Time
@@ -19,6 +18,7 @@ import           Db.Connection
 import           Prelude                    (print, putStrLn)
 import           RIO
 
+work :: Pool Connection -> IO ()
 work pool = withResource pool $ \conn -> do
   rows <- genRows [1 .. 1000]
   cnt <- executeMany conn "INSERT INTO outbox (type,event_identifier,payload_type,payload,timestamp) VALUES (?,?,?,?,?)" rows
@@ -39,7 +39,6 @@ main = do
   hSetBuffering stdin LineBuffering
   _ <- loadFile defaultConfig {configPath = [".env", ".env.secrets"]} -- load .env & .env.secrets file if available
   withAppSettingsFromEnv $ \pgSettings -> do
-    logFunc <- buildLogger "TestDataGen" "0.0.1"
     putStrLn "Connecting to db"
     pool <- initConnectionPool pgSettings
     putStrLn "Inserting records"
@@ -47,5 +46,5 @@ main = do
     return ()
   where
     handleErr e = do
-      putStrLn $ show (e :: SomeException)
+      print (e :: SomeException)
       return ()

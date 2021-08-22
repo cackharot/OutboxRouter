@@ -84,7 +84,7 @@ publishMessagesToTopic ::
 publishMessagesToTopic publisher msgs = forM_ msgs send
   where
     send m = sendMessageSync publisher $ kpayload m
-    kpayload m = mkMessage "todo" (fst m) (snd m)
+    kpayload m = uncurry (mkMessage "todo") m
 
 processMessages :: DbConnection -> KafkaProducer -> Int64 -> Int64 -> IO (Maybe OutboxMessage)
 processMessages pool publisher index limit = do
