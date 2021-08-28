@@ -55,6 +55,7 @@ library
     , http-types
     , hw-kafka-client
     , optparse-simple
+    , parallel-io
     , postgresql-simple
     , resource-pool
     , rio
@@ -75,7 +76,7 @@ executable OutboxRouter-exe
   default-extensions:
       OverloadedStrings
       NoImplicitPrelude
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N -with-rtsopts=-T
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints -threaded -O2 -rtsopts -with-rtsopts=-N -with-rtsopts=-T
   build-depends:
       OutboxRouter
     , aeson
@@ -93,6 +94,7 @@ executable OutboxRouter-exe
     , http-types
     , hw-kafka-client
     , optparse-simple
+    , parallel-io
     , postgresql-simple
     , resource-pool
     , rio
@@ -113,7 +115,7 @@ executable TestDataGen-exe
   default-extensions:
       OverloadedStrings
       NoImplicitPrelude
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N -with-rtsopts=-T
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints -threaded -O2 -rtsopts -with-rtsopts=-N -with-rtsopts=-T
   build-depends:
       OutboxRouter
     , aeson
@@ -131,6 +133,7 @@ executable TestDataGen-exe
     , http-types
     , hw-kafka-client
     , optparse-simple
+    , parallel-io
     , postgresql-simple
     , resource-pool
     , rio
@@ -172,6 +175,7 @@ test-suite OutboxRouter-test
     , http-types
     , hw-kafka-client
     , optparse-simple
+    , parallel-io
     , postgresql-simple
     , resource-pool
     , rio

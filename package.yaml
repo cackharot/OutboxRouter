@@ -43,6 +43,7 @@ dependencies:
 - base64-bytestring
 - uuid
 - time
+- parallel-io
 
 default-extensions:
   - OverloadedStrings
@@ -70,6 +71,7 @@ executables:
 
     ghc-options:
     - -threaded
+    - -O2
     - -rtsopts
     - -with-rtsopts=-N
     - -with-rtsopts=-T
@@ -82,6 +84,7 @@ executables:
 
     ghc-options:
     - -threaded
+    - -O2
     - -rtsopts
     - -with-rtsopts=-N
     - -with-rtsopts=-T

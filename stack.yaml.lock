@@ -85,6 +85,13 @@ packages:
       sha256: 04ad3816bc580cbe0834d3d1f4729ddd386abfe31b43e5b14968885f636d1b0d
   original:
     hackage: optparse-applicative-0.15.1.0@sha256:29ff6146aabf54d46c4c8788e8d1eadaea27c94f6d360c690c5f6c93dac4b07e,4810
+- completed:
+    hackage: parallel-io-0.3.5@sha256:97db32eb84b3141f4957f6d208c0ef8adce647cbf68099417e93c7d9a45f9b35,3482
+    pantry-tree:
+      size: 706
+      sha256: 9c81a6a331620aca19c7f8cfb88df2a9584346820687d75147b2a7bab87e112b
+  original:
+    hackage: parallel-io-0.3.5@sha256:97db32eb84b3141f4957f6d208c0ef8adce647cbf68099417e93c7d9a45f9b35,3482
 snapshots:
 - completed:
     size: 587113

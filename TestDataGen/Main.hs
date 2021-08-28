@@ -4,11 +4,12 @@
 module Main (main) where
 
 import           Chakra
-import           Configuration.Dotenv       (Config (..), defaultConfig,
-                                             loadFile)
+import           Configuration.Dotenv          (Config (..), defaultConfig,
+                                                loadFile)
+import           Control.Concurrent.ParallelIO
 import           Control.Monad
 import           Data.Aeson
-import qualified Data.ByteString.Lazy       as LB
+import qualified Data.ByteString.Lazy          as LB
 import           Data.Pool
 import           Data.Time
 import           Data.UUID
@@ -16,7 +17,7 @@ import           Data.UUID.V4
 import           Database.PostgreSQL.Simple
 import           DateTimeUtil
 import           Db.Connection
-import           Prelude                    (print, putStrLn)
+import           Prelude                       (print, putStrLn)
 import           RIO
 
 work :: Pool Connection -> Int -> IO ()
@@ -42,10 +43,9 @@ main = do
   withAppSettingsFromEnv $ \pgSettings -> do
     putStrLn "Connecting to db"
     pool <- initConnectionPool pgSettings
-    putStrLn "Inserting records"
-    w1 <- async $ catch (work pool 100000) handleErr
-    w2 <- async $ catch (work pool 100000) handleErr
-    _ <- waitBoth w1 w2
+    putStrLn "Inserting 200K records parallelly"
+    parallel_ (replicate 4 (work pool 50000))
+    stopGlobalPool
     return ()
   where
     handleErr e = do

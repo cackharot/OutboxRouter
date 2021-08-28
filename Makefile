@@ -29,7 +29,10 @@ run-local2: # Run app local without any support infra
 	$(STACK) exec $(APP_NAME) -- --port 18081 +RTS -T -N2 -RTS
 
 run-local: # Run app local without any support infra
-	$(STACK) exec $(APP_NAME) -- --port 18080 +RTS -T -N2 -RTS
+	$(STACK) exec $(APP_NAME) -- --port 18080 +RTS -T -N2 -sstderr -RTS
+
+run-test-data-gen-local:
+	$(STACK) exec TestDataGen-exe -- +RTS -T -N2 -sstderr -RTS
 
 run-local-tls:
 	$(APP_BIN)/$(APP_NAME) --port 8443 --protocol http+tls --tlskey certs/localhost.key --tlscert certs/localhost.crt +RTS -T -N2 -RTS
