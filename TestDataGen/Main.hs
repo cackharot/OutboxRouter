@@ -19,9 +19,9 @@ import           Db.Connection
 import           Prelude                    (print, putStrLn)
 import           RIO
 
-work :: Pool Connection -> IO ()
-work pool = withResource pool $ \conn -> do
-  rows <- genRows [1 .. 100000]
+work :: Pool Connection -> Int -> IO ()
+work pool num = withResource pool $ \conn -> do
+  rows <- genRows [1 .. num]
   cnt <- executeMany conn "INSERT INTO outbox (type,event_identifier,payload_type,payload,timestamp) VALUES (?,?,?,?,?)" rows
   print $ "Inserted " ++ show cnt ++ "records..."
   return ()
@@ -43,7 +43,9 @@ main = do
     putStrLn "Connecting to db"
     pool <- initConnectionPool pgSettings
     putStrLn "Inserting records"
-    catch (work pool) handleErr
+    w1 <- async $ catch (work pool 100000) handleErr
+    w2 <- async $ catch (work pool 100000) handleErr
+    _ <- waitBoth w1 w2
     return ()
   where
     handleErr e = do

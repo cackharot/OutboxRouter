@@ -7,14 +7,16 @@ import qualified Data.Map             as M
 import qualified Data.Text            as T
 import           Kafka.Consumer.Types
 import           Kafka.Producer
+import           Prelude              (print)
 import           RIO
 import           System.Envy
 
 data PublisherSettings = PublisherSettings
-  { psBrokerList :: !String,
-    psClientId   :: !String,
-    psTimeout    :: !Int,
-    psTopicName  :: !String
+  { psBrokerList   :: !String,
+    psClientId     :: !String,
+    psTimeout      :: !Int64,
+    psTopicName    :: !String,
+    psSizePerBatch :: !Int64
   }
   deriving (Eq,Show,Generic)
 
@@ -57,6 +59,18 @@ mkMessage t k v =
       prKey = k,
       prValue = v
     }
+
+sendMessage::
+  MonadIO m =>
+  KafkaProducer ->
+  ProducerRecord ->
+  m (Either KafkaError Offset)
+sendMessage producer record = liftIO $ do
+  err <- produceMessage producer record
+  forM_ err print
+  return  $ case err of
+    Just e  -> Left e
+    Nothing -> Right $ Offset 1
 
 sendMessageSync ::
   MonadIO m =>

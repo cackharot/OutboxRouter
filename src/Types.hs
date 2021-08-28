@@ -20,7 +20,7 @@ import           Database.PostgreSQL.Simple.FromRow
 import           RIO
 
 data OutboxMessage = OutboxMessage
-  { _global_index     :: Int,
+  { _global_index     :: Int64,
     _type             :: String,
     _event_identifier :: String,
     _payload_type     :: String,
@@ -53,9 +53,9 @@ instance FromRow OutboxMessage where
   fromRow = OutboxMessage <$> field <*> field <*> field <*> field <*> field <*> field <*> field
 
 data TokenData = TokenData
-  { _last_index     :: !Int,
+  { _last_index     :: !Int64,
     _last_timestamp :: !String,
-    _gaps           :: ![Int]
+    _gaps           :: ![Int64]
   }
   deriving (Generic, Show, Eq, By.Binary)
 
