@@ -9,6 +9,9 @@ BIN="$(CWD)/bin"
 watch: # Build binaries
 	$(STACK) build --file-watch --fast --local-bin-path $(BIN) --copy-bins
 
+watch-ghcid:
+	 ghcid -v --command "stack ghci OutboxRouter:exe:OutboxRouter-exe --ghci-options=-fobject-code" --warnings
+
 build: # Build binaries
 	$(STACK) build --local-bin-path $(BIN) --copy-bins
 
