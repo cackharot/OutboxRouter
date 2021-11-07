@@ -158,7 +158,7 @@ workerLoop sizePerBatch pool publisher = do
       when (isJust last_msg) $ do
         _ <- updateTokenData tconn (d $ fromJust last_msg) seg pn
         putStr $ "\nUpdated token entry to index " ++ show (_global_index $ fromJust last_msg)
-      threadDelay 100000 -- 100ms
+      threadDelay 1_00_000 -- 100ms
       return ()
   where
     seg = 1

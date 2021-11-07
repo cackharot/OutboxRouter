@@ -48,6 +48,7 @@ dependencies:
 default-extensions:
   - OverloadedStrings
   - NoImplicitPrelude
+  - NumericUnderscores
 
 ghc-options:
 - -Wall

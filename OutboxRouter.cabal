@@ -38,6 +38,7 @@ library
   default-extensions:
       OverloadedStrings
       NoImplicitPrelude
+      NumericUnderscores
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints
   build-depends:
       aeson
@@ -76,6 +77,7 @@ executable OutboxRouter-exe
   default-extensions:
       OverloadedStrings
       NoImplicitPrelude
+      NumericUnderscores
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints -threaded -O2 -rtsopts -with-rtsopts=-N -with-rtsopts=-T
   build-depends:
       OutboxRouter
@@ -115,6 +117,7 @@ executable TestDataGen-exe
   default-extensions:
       OverloadedStrings
       NoImplicitPrelude
+      NumericUnderscores
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints -threaded -O2 -rtsopts -with-rtsopts=-N -with-rtsopts=-T
   build-depends:
       OutboxRouter
@@ -156,6 +159,7 @@ test-suite OutboxRouter-test
   default-extensions:
       OverloadedStrings
       NoImplicitPrelude
+      NumericUnderscores
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       OutboxRouter
