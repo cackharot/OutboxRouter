@@ -23,14 +23,10 @@ dependencies:
 - binary
 - chakra
 - rio
-- wai
-- wai-cli
-- http-types
 - aeson
 - text
 - data-has
 - envy
-- bytestring
 - servant-server
 - dotenv
 - optparse-simple
@@ -76,6 +72,7 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     - -with-rtsopts=-T
+
   TestDataGen-exe:
     main:                Main.hs
     source-dirs:         TestDataGen
@@ -86,6 +83,20 @@ executables:
     ghc-options:
     - -threaded
     - -O2
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -with-rtsopts=-T
+
+  TestConsumer-exe:
+    main:                Main.hs
+    source-dirs:         TestConsumer
+    dependencies:
+    - OutboxRouter
+    - optparse-simple
+
+    ghc-options:
+    - -threaded
+    - -O
     - -rtsopts
     - -with-rtsopts=-N
     - -with-rtsopts=-T

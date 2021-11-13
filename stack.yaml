@@ -1,17 +1,7 @@
-resolver: lts-18.6
+resolver: lts-18.14
 packages:
 - .
 extra-deps:
-- chakra-0.1.0
-- git: https://github.com/cackharot/wai-cli.git
-  commit: 73359e0efbe7982eecbf843f8638ffdbede324f0
-- prometheus-metrics-ghc-1.0.1.1
-- wai-middleware-prometheus-1.0.0
-- servant-auth-0.4.0.0
-- servant-auth-server-0.4.6.0
-- servant-server-0.18.2
-- servant-0.18.2
-- ulid-0.3.0.0@sha256:f0eff432ed0f0d0b71be0fd7f45acb54d87aebc4e1e153d2c2e1be4b09eb20b5,2918
-- hw-kafka-client-4.0.3@sha256:20e3614454d5afd2a6acfc0709b9bf00bd6ee9a9bc646c2e2e4ccec1d16831a1,4861
-- optparse-applicative-0.15.1.0@sha256:29ff6146aabf54d46c4c8788e8d1eadaea27c94f6d360c690c5f6c93dac4b07e,4810
-- parallel-io-0.3.5@sha256:97db32eb84b3141f4957f6d208c0ef8adce647cbf68099417e93c7d9a45f9b35,3482
+- chakra-0.1.2
+- wai-cli-0.2.3
+- parallel-io-0.3.5

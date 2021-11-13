@@ -9,7 +9,6 @@ import           Configuration.Dotenv          (Config (..), defaultConfig,
 import           Control.Concurrent.ParallelIO
 import           Control.Monad
 import           Data.Aeson
-import qualified Data.ByteString.Lazy          as LB
 import           Data.Pool
 import           Data.Time
 import           Data.UUID
@@ -19,6 +18,7 @@ import           DateTimeUtil
 import           Db.Connection
 import           Prelude                       (print, putStrLn)
 import           RIO
+import qualified RIO.ByteString.Lazy           as LB
 
 work :: Pool Connection -> Int -> IO ()
 work pool num = withResource pool $ \conn -> do

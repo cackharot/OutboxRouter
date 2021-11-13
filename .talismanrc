@@ -1,0 +1,6 @@
+fileignoreconfig:
+- filename: .env
+  checksum: e09620b0d073c6c5aca0440d95109b10a8d6c3f3f0cca3902440f1637cbf8e1a
+- filename: stack.yaml.lock
+  checksum: 1ced5d2be913aa4318fefb3586a240451971cdc97798a85c4f8d18db7fff1a90
+version: "1.0"

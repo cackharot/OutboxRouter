@@ -52,7 +52,7 @@ main = do
       pool <- setupDb pgSettings
       pl <- async $
         withAppSettingsFromEnv $ \publisherSettings -> do
-          _ <- withPublisher publisherSettings $ workerLoop (psSizePerBatch publisherSettings) pool
+          _ <- withPublisher publisherSettings $ workerLoop publisherSettings pool
           return ()
       runChakraAppWithMetrics
         middlewares

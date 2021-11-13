@@ -4,11 +4,11 @@
 module KafkaPublisher where
 
 import qualified Data.Map             as M
-import qualified Data.Text            as T
 import           Kafka.Consumer.Types
 import           Kafka.Producer
 import           Prelude              (print)
 import           RIO
+import qualified RIO.Text             as T
 import           System.Envy
 
 data PublisherSettings = PublisherSettings
@@ -29,7 +29,8 @@ mkProducerProps s =
     <> extraProps
       ( M.fromList
           [ ("broker.address.family", "v4"),
-            ("client.id", T.pack $ psClientId s)
+            ("client.id", T.pack $ psClientId s),
+            ("linger.ms", "50")
           ]
       )
     <> logLevel KafkaLogInfo
@@ -40,6 +41,7 @@ withPublisher ::
   (KafkaProducer -> IO (Either KafkaError b)) ->
   m (Either KafkaError b)
 withPublisher props handler = liftIO $ do
+  print props
   bracket mkProducer clProducer runHandler
   where
     mkProducer = newProducer $ mkProducerProps props

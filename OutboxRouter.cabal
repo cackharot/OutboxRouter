@@ -46,14 +46,12 @@ library
     , base >=4.11 && <10
     , base64-bytestring
     , binary
-    , bytestring
     , chakra
     , containers
     , data-has
     , dotenv
     , envy
     , hostname
-    , http-types
     , hw-kafka-client
     , optparse-simple
     , parallel-io
@@ -64,8 +62,6 @@ library
     , text
     , time
     , uuid
-    , wai
-    , wai-cli
   default-language: Haskell2010
 
 executable OutboxRouter-exe
@@ -86,14 +82,12 @@ executable OutboxRouter-exe
     , base >=4.11 && <10
     , base64-bytestring
     , binary
-    , bytestring
     , chakra
     , containers
     , data-has
     , dotenv
     , envy
     , hostname
-    , http-types
     , hw-kafka-client
     , optparse-simple
     , parallel-io
@@ -104,8 +98,42 @@ executable OutboxRouter-exe
     , text
     , time
     , uuid
-    , wai
-    , wai-cli
+  default-language: Haskell2010
+
+executable TestConsumer-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_OutboxRouter
+  hs-source-dirs:
+      TestConsumer
+  default-extensions:
+      OverloadedStrings
+      NoImplicitPrelude
+      NumericUnderscores
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints -threaded -O -rtsopts -with-rtsopts=-N -with-rtsopts=-T
+  build-depends:
+      OutboxRouter
+    , aeson
+    , async
+    , base >=4.11 && <10
+    , base64-bytestring
+    , binary
+    , chakra
+    , containers
+    , data-has
+    , dotenv
+    , envy
+    , hostname
+    , hw-kafka-client
+    , optparse-simple
+    , parallel-io
+    , postgresql-simple
+    , resource-pool
+    , rio
+    , servant-server
+    , text
+    , time
+    , uuid
   default-language: Haskell2010
 
 executable TestDataGen-exe
@@ -126,14 +154,12 @@ executable TestDataGen-exe
     , base >=4.11 && <10
     , base64-bytestring
     , binary
-    , bytestring
     , chakra
     , containers
     , data-has
     , dotenv
     , envy
     , hostname
-    , http-types
     , hw-kafka-client
     , optparse-simple
     , parallel-io
@@ -144,8 +170,6 @@ executable TestDataGen-exe
     , text
     , time
     , uuid
-    , wai
-    , wai-cli
   default-language: Haskell2010
 
 test-suite OutboxRouter-test
@@ -168,7 +192,6 @@ test-suite OutboxRouter-test
     , base >=4.11 && <10
     , base64-bytestring
     , binary
-    , bytestring
     , chakra
     , containers
     , data-has
@@ -176,7 +199,6 @@ test-suite OutboxRouter-test
     , envy
     , hostname
     , hspec
-    , http-types
     , hw-kafka-client
     , optparse-simple
     , parallel-io
@@ -187,6 +209,4 @@ test-suite OutboxRouter-test
     , text
     , time
     , uuid
-    , wai
-    , wai-cli
   default-language: Haskell2010

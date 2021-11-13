@@ -4,7 +4,6 @@ import           Control.Concurrent         (threadDelay)
 import           Control.Monad
 import           Data.Aeson
 import qualified Data.Binary                as By
-import qualified Data.ByteString.Lazy       as LB
 import           Data.Maybe                 (fromJust)
 import           Data.Pool
 import           Database.PostgreSQL.Simple
@@ -15,6 +14,8 @@ import           Kafka.Types
 import           KafkaPublisher
 import           Prelude                    (head, last, print, putStr)
 import           RIO                        hiding (async, cancel, threadDelay)
+import qualified RIO.ByteString.Lazy        as LB
+import           RIO.Text                   (pack)
 import           Types
 
 selectOutboxQuery :: Query
@@ -97,55 +98,58 @@ transformMessage m = pure (getKey m, getPayload m)
 publishMessagesToTopic ::
   (Foldable t, MonadIO m) =>
   KafkaProducer ->
+  TopicName ->
   t (Maybe ByteString, Maybe ByteString) ->
   m ()
-publishMessagesToTopic publisher msgs = forM_ msgs (publishMessage publisher)
+publishMessagesToTopic publisher topic msgs = forM_ msgs (publishMessage publisher topic)
 
 publishMessage ::
   MonadIO m =>
   KafkaProducer ->
+  TopicName ->
   (Maybe ByteString, Maybe ByteString) ->
   m
     ( Either
         KafkaError
         Offset
     )
-publishMessage publisher msg = sendMessageSync publisher $ uncurry (mkMessage "todo") msg
+publishMessage publisher topic msg = sendMessageSync publisher $ uncurry (mkMessage topic) msg
 
 publishMessage' ::
   MonadIO m =>
   KafkaProducer ->
+  TopicName ->
   (Maybe ByteString, Maybe ByteString) ->
   m
     ( Either
         KafkaError
         Offset
     )
-publishMessage' publisher msg = sendMessage publisher $ uncurry (mkMessage "todo") msg
+publishMessage' publisher topic msg = sendMessage publisher $ uncurry (mkMessage topic) msg
 
-processMessages' :: DbConnection -> KafkaProducer -> Int64 -> Int64 -> IO (Maybe OutboxMessage)
-processMessages' pool publisher = readOutboxMessages' pool Nothing tx
+processMessages' :: DbConnection -> KafkaProducer -> Int64 -> Int64 -> TopicName -> IO (Maybe OutboxMessage)
+processMessages' pool publisher index limit topic = readOutboxMessages' pool Nothing tx index limit
   where
     tx _ row = do
       tms <- transformMessage row
-      _ <- publishMessage' publisher tms
+      _ <- publishMessage' publisher topic tms
       return $ Just row
 
-processMessages :: DbConnection -> KafkaProducer -> Int64 -> Int64 -> IO (Maybe OutboxMessage)
-processMessages pool publisher index limit = do
+processMessages :: DbConnection -> KafkaProducer -> Int64 -> Int64 -> TopicName -> IO (Maybe OutboxMessage)
+processMessages pool publisher index limit topic = do
   -- putStrLn $ "Reading outbox messages from index: " ++ show index ++ " with limit: " ++ show limit
   msgs <- readOutboxMessages pool index limit
   if null msgs
     then return Nothing
     else do
       tms <- transformMessages msgs
-      _ <- publishMessagesToTopic publisher tms
+      _ <- publishMessagesToTopic publisher topic tms
       if not (null tms)
         then return $ Just $ last msgs
         else return Nothing
 
-workerLoop :: Int64 -> Pool Connection -> KafkaProducer -> IO b
-workerLoop sizePerBatch pool publisher = do
+workerLoop :: PublisherSettings  -> Pool Connection -> KafkaProducer -> IO b
+workerLoop props pool publisher = do
   currTrackinIndex <- newEmptyMVar
   putMVar currTrackinIndex 0
   forever $ do
@@ -154,13 +158,15 @@ workerLoop sizePerBatch pool publisher = do
       when (v /= current_index te) $ do
         putStr $ "\nStarting from index " ++ show (current_index te)
       putMVar currTrackinIndex (current_index te)
-      last_msg <- processMessages' pool publisher (current_index te) sizePerBatch
+      last_msg <- processMessages' pool publisher (current_index te) sizePerBatch topicName
       when (isJust last_msg) $ do
         _ <- updateTokenData tconn (d $ fromJust last_msg) seg pn
         putStr $ "\nUpdated token entry to index " ++ show (_global_index $ fromJust last_msg)
       threadDelay 1_00_000 -- 100ms
       return ()
   where
+    sizePerBatch = psSizePerBatch props
+    topicName = TopicName $ pack $ psTopicName props
     seg = 1
     pn = "process-1"
     current_index :: TokenEntry -> Int64

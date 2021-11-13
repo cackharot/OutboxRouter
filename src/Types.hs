@@ -12,12 +12,12 @@ where
 import           Data.Aeson
 import qualified Data.Binary                        as By
 import qualified Data.ByteString.Base64.Lazy        as B64
-import qualified Data.ByteString.Lazy               as LB
-import qualified Data.Text.Lazy                     as TL
 import qualified Data.Text.Lazy.Encoding            as TE
 import           Database.PostgreSQL.Simple         (Binary (..))
 import           Database.PostgreSQL.Simple.FromRow
 import           RIO
+import qualified RIO.ByteString.Lazy                as LB
+import qualified RIO.Text.Lazy                      as TL
 
 data OutboxMessage = OutboxMessage
   { _global_index     :: Int64,
